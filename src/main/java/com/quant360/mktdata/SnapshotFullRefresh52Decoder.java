@@ -1264,13 +1264,13 @@ public final class SnapshotFullRefresh52Decoder
             }
             builder.append('|');
             builder.append("mDEntrySize=");
-            builder.append(mDEntrySize());
+            builder.append(mDEntrySize() == mDEntrySizeNullValue() ? "null" : "" + mDEntrySize());
             builder.append('|');
             builder.append("numberOfOrders=");
-            builder.append(numberOfOrders());
+            builder.append(numberOfOrders() == numberOfOrdersNullValue() ? "null" : numberOfOrders());
             builder.append('|');
             builder.append("mDPriceLevel=");
-            builder.append(mDPriceLevel());
+            builder.append(mDPriceLevel() == mDPriceLevelNullValue() ? "null" : "" + mDPriceLevel());
             builder.append('|');
             builder.append("tradingReferenceDate=");
             builder.append(tradingReferenceDate());

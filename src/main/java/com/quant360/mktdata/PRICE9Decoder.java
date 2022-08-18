@@ -1,6 +1,7 @@
 /* Generated SBE (Simple Binary Encoding) message codec. */
 package com.quant360.mktdata;
 
+import com.quant360.util.MathUtil;
 import org.agrona.DirectBuffer;
 
 
@@ -142,11 +143,7 @@ public final class PRICE9Decoder
             return builder;
         }
 
-        builder.append('(');
-        builder.append("mantissa=");
-        builder.append(mantissa());
-        builder.append('|');
-        builder.append(')');
+        builder.append(String.format("%.3f", MathUtil.scientificNotation(mantissa(), exponent())));
 
         return builder;
     }

@@ -162,7 +162,6 @@ public final class SettlPriceTypeDecoder
 
     public StringBuilder appendTo(final StringBuilder builder)
     {
-        builder.append('{');
         boolean atLeastOne = false;
         if (finalDaily())
         {
@@ -218,7 +217,6 @@ public final class SettlPriceTypeDecoder
             builder.append("nullValue");
             atLeastOne = true;
         }
-        builder.append('}');
 
         return builder;
     }
