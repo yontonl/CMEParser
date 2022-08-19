@@ -16,7 +16,6 @@ import java.io.PrintWriter;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -26,13 +25,15 @@ public class Main {
 
         try (
                 PcapHandle handle = Pcaps.openOffline("src/main/resources/sample-data/20220304.150000.160000.CME_GBX.NYMEX.75_18.A.04.pcap");
-                PrintWriter fout = new PrintWriter(new FileOutputStream("src/main/resources/sample-data/20220304.150000.160000.CME_GBX.NYMEX.75_18.A.04.SnapshotFullRefreshOrderBook.csv"))
+                PrintWriter fout1 = new PrintWriter(new FileOutputStream("src/main/resources/sample-data/20220304.150000.160000.CME_GBX.NYMEX.75_18.A.04.SnapshotFullRefreshOrderBook.csv"));
+                PrintWriter fout2 = new PrintWriter(new FileOutputStream("src/main/resources/sample-data/20220304.150000.160000.CME_GBX.NYMEX.75_18.A.04.SnapshotFullRefresh.csv"))
         ) {
 
             Packet packet;
 
             int i = 1;
-            List<HashMap<String, String>> messages = new ArrayList<>();
+            List<HashMap<String, String>> messages1 = new ArrayList<>();
+            List<HashMap<String, String>> messages2 = new ArrayList<>();
 
             while (null != (packet = handle.getNextPacket())) {
                 byte[] rawData = packet.getPayload().getPayload().getPayload().getRawData();
@@ -63,7 +64,7 @@ public class Main {
                                 messageInitialMap.put("sbeSchemaId", String.valueOf(headerDecoder.schemaId()));
                                 messageInitialMap.put("sbeSchemaVersion", String.valueOf(headerDecoder.version()));
                                 messageInitialMap.put("sbeBlockLength", String.valueOf(headerDecoder.blockLength()));
-                                messages.addAll(new Parser<
+                                messages1.addAll(new Parser<
                                         SnapshotFullRefreshOrderBook53Decoder,
                                         SnapshotFullRefreshOrderBook53Decoder.NoMDEntriesDecoder
                                         >().parse(decoder, noMDEntries, messageInitialMap));
@@ -78,10 +79,10 @@ public class Main {
                                 messageInitialMap.put("sbeSchemaId", String.valueOf(headerDecoder.schemaId()));
                                 messageInitialMap.put("sbeSchemaVersion", String.valueOf(headerDecoder.version()));
                                 messageInitialMap.put("sbeBlockLength", String.valueOf(headerDecoder.blockLength()));
-//                                messages.addAll(new Parser<
-//                                        SnapshotFullRefresh52Decoder,
-//                                        SnapshotFullRefresh52Decoder.NoMDEntriesDecoder
-//                                        >().parse(decoder, noMDEntries, messageInitialMap));
+                                messages2.addAll(new Parser<
+                                        SnapshotFullRefresh52Decoder,
+                                        SnapshotFullRefresh52Decoder.NoMDEntriesDecoder
+                                        >().parse(decoder, noMDEntries, messageInitialMap));
                                 offset += (decoder.sbeBlockLength() + noMDEntries.count() * noMDEntries.actingBlockLength());
                             }
                         }
@@ -117,7 +118,43 @@ public class Main {
             ), CsvSchema.ColumnType.STRING);
             CsvSchema schema = schemaBuilder.build().withHeader();
             CsvMapper mapper = new CsvMapper();
-            mapper.writer(schema).writeValues(fout).writeAll(messages).flush();
+            mapper.writer(schema).writeValues(fout1).writeAll(messages1).flush();
+
+            schemaBuilder.clearColumns();
+            schemaBuilder.addColumns(List.of(
+                    "packet",
+                    "timestamp",
+                    "sequence_number",
+                    "sending_time",
+                    "sbeTemplateId",
+                    "sbeSchemaId",
+                    "sbeSchemaVersion",
+                    "sbeBlockLength",
+                    "lastMsgSeqNumProcessed",
+                    "totNumReports",
+                    "securityID",
+                    "rptSeq",
+                    "transactTime",
+                    "lastUpdateTime",
+                    "tradeDate",
+                    "mDSecurityTradingStatus",
+                    "highLimitPrice",
+                    "lowLimitPrice",
+                    "maxPriceVariation",
+                    "noMDEntries",
+                    "mDEntryPx",
+                    "mDEntrySize",
+                    "numberOfOrders",
+                    "mDPriceLevel",
+                    "tradingReferenceDate",
+                    "openCloseSettlFlag",
+                    "settlPriceType",
+                    "mDEntryType"
+            ), CsvSchema.ColumnType.STRING);
+            schema = schemaBuilder.build().withHeader();
+            mapper = new CsvMapper();
+            mapper.writer(schema).writeValues(fout2).writeAll(messages2).flush();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
