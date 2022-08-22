@@ -20,11 +20,20 @@ public class IncrementalParser {
         this.pcapFile = pcapFile;
     }
 
+    public static void main(String[] args) {
+        IncrementalParser parser = new IncrementalParser("/home/ytliu/20220303.190000.200000.CME_GBX.NYMEX.31_130.A.04.pcap.00000");
+        parser.parse();
+    }
     public void parse() {
         try (
                 PcapHandle handle = Pcaps.openOffline(pcapFile);
                 ) {
-            ExecutorService executor = Executors.newCachedThreadPool();
+            Packet packet;
+            int packetCount = 1;
+            while ((packet = handle.getNextPacket()) != null) {
+                List<Map<String, String>> rows = parsePacket(packet, packetCount++);
+                System.out.println(rows);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -54,15 +63,13 @@ public class IncrementalParser {
                 "sending_time", sending_time
         );
 
-        while (offset < buffer.capacity()) {
+        while (0 <= offset && offset < buffer.capacity()) {
             List<Map<String, String>> rowsOfMessage = new ArrayList<>();
 
             short messageLen = buffer.getShort(offset);
-            offset += 2;
 
             MessageHeaderDecoder headerDecoder = new MessageHeaderDecoder();
-            headerDecoder.wrap(buffer, offset);
-            offset += headerDecoder.encodedLength();
+            headerDecoder.wrap(buffer, offset + 2);
 
             Map<String, String> headerFields = Map.of(
                     "sbeTemplateId", String.valueOf(headerDecoder.templateId()),
@@ -75,14 +82,16 @@ public class IncrementalParser {
             switch (templateId) {
                 case MDIncrementalRefreshBook46Decoder.TEMPLATE_ID -> {
                     MDIncrementalRefreshBook46Decoder decoder = new MDIncrementalRefreshBook46Decoder();
-                    decoder.wrap(buffer, offset, headerDecoder.blockLength(), headerDecoder.version());
+                    decoder.wrap(buffer, offset + 2 + headerDecoder.encodedLength(), headerDecoder.blockLength(), headerDecoder.version());
 
-                    Map<String, String> messageFixedFields = Map.of(
+                    Map<String, String> messageFixedFields = new HashMap<>(Map.of(
                             "TransactTime", String.valueOf(decoder.transactTime()),
                             "MatchEventIndicator", String.valueOf(decoder.matchEventIndicator())
-                    );
+                    ));
 
                     var mdEntriesDecoder = decoder.noMDEntries();
+                    messageFixedFields.put("NoMDEntries", String.valueOf(mdEntriesDecoder.count()));
+
                     if (mdEntriesDecoder.count() == 0) {
                         Map<String, String> row = new HashMap<>(packetFields);
                         row.putAll(headerFields);
@@ -107,6 +116,8 @@ public class IncrementalParser {
 
                     List<Map<String, String>> orderIDEntries = new ArrayList<>();
                     var orderIDEntryDecoder = decoder.noOrderIDEntries();
+                    messageFixedFields.put("NoOrderIDEntries", String.valueOf(orderIDEntryDecoder.count()));
+
                     for (var orderIDEntry : orderIDEntryDecoder) {
                         orderIDEntries.add(Map.of(
                                 "OrderID", String.valueOf(orderIDEntry.orderID()),
@@ -146,12 +157,15 @@ public class IncrementalParser {
                 }
                 case MDIncrementalRefreshTradeSummary48Decoder.TEMPLATE_ID -> {
                     MDIncrementalRefreshTradeSummary48Decoder decoder = new MDIncrementalRefreshTradeSummary48Decoder();
-                    decoder.wrap(buffer, offset, headerDecoder.blockLength(), headerDecoder.version());
-                    Map<String, String> messageFixedFields = Map.of(
+                    decoder.wrap(buffer, offset + 2 + headerDecoder.encodedLength(), headerDecoder.blockLength(), headerDecoder.version());
+                    Map<String, String> messageFixedFields = new HashMap<>(Map.of(
                             "TransactTime", String.valueOf(decoder.transactTime()),
                             "MatchEventIndicator", String.valueOf(decoder.matchEventIndicator())
-                    );
+                    ));
+
                     var mdEntriesDecoder = decoder.noMDEntries();
+                    messageFixedFields.put("NoMDEntries", String.valueOf(mdEntriesDecoder.count()));
+
                     if (mdEntriesDecoder.count() == 0) {
                         Map<String, String> row = new HashMap<>(packetFields);
                         row.putAll(headerFields);
@@ -177,6 +191,8 @@ public class IncrementalParser {
 
                     List<Map<String, String>> orderIDEntries = new ArrayList<>();
                     var orderIDEntryDecoder = decoder.noOrderIDEntries();
+                    messageFixedFields.put("NoOrderIDEntries", String.valueOf(orderIDEntryDecoder.count()));
+
                     for (var orderIDEntry : orderIDEntryDecoder) {
                         orderIDEntries.add(Map.of(
                                 "OrderID", String.valueOf(orderIDEntry.orderID()),

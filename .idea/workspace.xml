@@ -5,10 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="94d15467-5e27-4669-9f60-063bc98cd5d9" name="Changes" comment="add extra codec classes">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/quant360/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quant360/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/quant360/tools/script.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/quant360/parser/IncrementalParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quant360/parser/IncrementalParser.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,6 +29,13 @@
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="useMavenConfig" value="true" />
+      </MavenGeneralSettings>
+    </option>
   </component>
   <component name="ProjectId" id="2DURrePXgfznGgyZPSHg3FOpiZy" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
@@ -64,7 +69,20 @@
       <recent name="$PROJECT_DIR$/src/main/java/com/quant360" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.Main">
+  <component name="RunManager" selected="Application.IncrementalParser">
+    <configuration name="IncrementalParser" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.quant360.parser.IncrementalParser" />
+      <module name="CMEParser" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.quant360.parser.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.quant360.Main" />
       <module name="CMEParser" />
@@ -93,6 +111,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.IncrementalParser" />
         <item itemvalue="Application.Main" />
         <item itemvalue="Application.Playground" />
       </list>
@@ -121,6 +140,9 @@
       <workItem from="1661152114744" duration="134000" />
       <workItem from="1661152257594" duration="7006000" />
       <workItem from="1661159286248" duration="1068000" />
+      <workItem from="1661188814274" duration="26000" />
+      <workItem from="1661188894816" duration="287000" />
+      <workItem from="1661189187387" duration="1364000" />
     </task>
     <task id="LOCAL-00001" summary="work">
       <created>1660817180671</created>
@@ -151,6 +173,17 @@
     <MESSAGE value="work" />
     <MESSAGE value="add extra codec classes" />
     <option name="LAST_COMMIT_MESSAGE" value="add extra codec classes" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/quant360/parser/IncrementalParser.java</url>
+          <line>34</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
