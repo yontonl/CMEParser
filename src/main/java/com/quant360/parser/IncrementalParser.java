@@ -6,10 +6,15 @@ import org.pcap4j.core.PcapHandle;
 import org.pcap4j.core.Pcaps;
 import org.pcap4j.packet.Packet;
 
+import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
 
 
 public class IncrementalParser {
@@ -21,12 +26,12 @@ public class IncrementalParser {
     }
 
     public static void main(String[] args) {
-        IncrementalParser parser = new IncrementalParser("/home/ytliu/20220303.190000.200000.CME_GBX.NYMEX.31_130.A.04.pcap.00000");
+        IncrementalParser parser = new IncrementalParser("src/main/resources/sample-data/20220303.220000.230000.CME_GBX.NYMEX.31_130.A.04.pcap.00000");
         parser.parse();
     }
     public void parse() {
         try (
-                PcapHandle handle = Pcaps.openOffline(pcapFile);
+                PcapHandle handle = Pcaps.openOffline(pcapFile)
                 ) {
             Packet packet;
             int packetCount = 1;
@@ -56,12 +61,12 @@ public class IncrementalParser {
         offset += 8;
 
         String sending_time = sdf.format(new Date(timestamp));
-        Map<String, String> packetFields = Map.of(
-                "packet", String.valueOf(packetSeqNum),
-                "timestamp", String.valueOf(timestamp),
-                "sequence_number", String.valueOf(sequence_number),
-                "sending_time", sending_time
-        );
+        Map<String, String> packetFields = new HashMap<>();
+
+        packetFields.put("packet", String.valueOf(packetSeqNum));
+        packetFields.put("timestamp", String.valueOf(timestamp));
+        packetFields.put("sequence_number", String.valueOf(sequence_number));
+        packetFields.put("sending_time", sending_time);
 
         while (0 <= offset && offset < buffer.capacity()) {
             List<Map<String, String>> rowsOfMessage = new ArrayList<>();
@@ -71,25 +76,23 @@ public class IncrementalParser {
             MessageHeaderDecoder headerDecoder = new MessageHeaderDecoder();
             headerDecoder.wrap(buffer, offset + 2);
 
-            Map<String, String> headerFields = Map.of(
-                    "sbeTemplateId", String.valueOf(headerDecoder.templateId()),
-                    "sbeSchemaId", String.valueOf(headerDecoder.schemaId()),
-                    "sbeSchemaVersion", String.valueOf(headerDecoder.version()),
-                    "sbeBlockLength", String.valueOf(headerDecoder.blockLength())
-            );
+            Map<String, String> headerFields = new HashMap<>();
+            headerFields.put("sbeTemplateId", String.valueOf(headerDecoder.templateId()));
+            headerFields.put("sbeSchemaId", String.valueOf(headerDecoder.schemaId()));
+            headerFields.put("sbeSchemaVersion", String.valueOf(headerDecoder.version()));
+            headerFields.put("sbeBlockLength", String.valueOf(headerDecoder.blockLength()));
 
             int templateId = headerDecoder.templateId();
             switch (templateId) {
-                case MDIncrementalRefreshBook46Decoder.TEMPLATE_ID -> {
+                case MDIncrementalRefreshBook46Decoder.TEMPLATE_ID: {
                     MDIncrementalRefreshBook46Decoder decoder = new MDIncrementalRefreshBook46Decoder();
                     decoder.wrap(buffer, offset + 2 + headerDecoder.encodedLength(), headerDecoder.blockLength(), headerDecoder.version());
 
-                    Map<String, String> messageFixedFields = new HashMap<>(Map.of(
-                            "TransactTime", String.valueOf(decoder.transactTime()),
-                            "MatchEventIndicator", String.valueOf(decoder.matchEventIndicator())
-                    ));
+                    Map<String, String> messageFixedFields = new HashMap<>();
+                    messageFixedFields.put("TransactTime", String.valueOf(decoder.transactTime()));
+                    messageFixedFields.put("MatchEventIndicator", String.valueOf(decoder.matchEventIndicator()));
 
-                    var mdEntriesDecoder = decoder.noMDEntries();
+                    MDIncrementalRefreshBook46Decoder.NoMDEntriesDecoder mdEntriesDecoder = decoder.noMDEntries();
                     messageFixedFields.put("NoMDEntries", String.valueOf(mdEntriesDecoder.count()));
 
                     if (mdEntriesDecoder.count() == 0) {
@@ -101,31 +104,31 @@ public class IncrementalParser {
                     }
 
                     List<Map<String, String>> mdEntries = new ArrayList<>();
-                    for (var mdEntry : mdEntriesDecoder) {
-                        mdEntries.add(Map.of(
-                                "MDEntryPx", String.valueOf(mdEntry.mDEntryPx()),
-                                "MDEntrySize", String.valueOf(mdEntry.mDEntrySize()),
-                                "SecurityID", String.valueOf(mdEntry.securityID()),
-                                "RptSeq", String.valueOf(mdEntry.rptSeq()),
-                                "NumberOfOrders", String.valueOf(mdEntry.numberOfOrders()),
-                                "MDPriceLevel", String.valueOf(mdEntry.mDPriceLevel()),
-                                "MDUpdateAction", String.valueOf(mdEntry.mDUpdateAction()),
-                                "MDEntryType", String.valueOf(mdEntry.mDEntryType())
-                        ));
+                    for (MDIncrementalRefreshBook46Decoder.NoMDEntriesDecoder mdEntry : mdEntriesDecoder) {
+                        Map<String, String> entryMap = new HashMap<>();
+                        entryMap.put("MDEntryPx", String.valueOf(mdEntry.mDEntryPx()));
+                        entryMap.put("MDEntrySize", String.valueOf(mdEntry.mDEntrySize()));
+                        entryMap.put("SecurityID", String.valueOf(mdEntry.securityID()));
+                        entryMap.put("RptSeq", String.valueOf(mdEntry.rptSeq()));
+                        entryMap.put("NumberOfOrders", String.valueOf(mdEntry.numberOfOrders()));
+                        entryMap.put("MDPriceLevel", String.valueOf(mdEntry.mDPriceLevel()));
+                        entryMap.put("MDUpdateAction", String.valueOf(mdEntry.mDUpdateAction()));
+                        entryMap.put("MDEntryType", String.valueOf(mdEntry.mDEntryType()));
+                        mdEntries.add(entryMap);
                     }
 
                     List<Map<String, String>> orderIDEntries = new ArrayList<>();
-                    var orderIDEntryDecoder = decoder.noOrderIDEntries();
+                    MDIncrementalRefreshBook46Decoder.NoOrderIDEntriesDecoder orderIDEntryDecoder = decoder.noOrderIDEntries();
                     messageFixedFields.put("NoOrderIDEntries", String.valueOf(orderIDEntryDecoder.count()));
 
-                    for (var orderIDEntry : orderIDEntryDecoder) {
-                        orderIDEntries.add(Map.of(
-                                "OrderID", String.valueOf(orderIDEntry.orderID()),
-                                "MDOrderPriority", String.valueOf(orderIDEntry.mDOrderPriority()),
-                                "MDDisplayQty", String.valueOf(orderIDEntry.mDDisplayQty()),
-                                "ReferenceID", String.valueOf(orderIDEntry.referenceID()),
-                                "OrderUpdateAction", String.valueOf(orderIDEntry.orderUpdateAction())
-                        ));
+                    for (MDIncrementalRefreshBook46Decoder.NoOrderIDEntriesDecoder orderIDEntry : orderIDEntryDecoder) {
+                        Map<String, String> orderIDEntryMap = new HashMap<>();
+                        orderIDEntryMap.put("OrderID", String.valueOf(orderIDEntry.orderID()));
+                        orderIDEntryMap.put("MDOrderPriority", String.valueOf(orderIDEntry.mDOrderPriority()));
+                        orderIDEntryMap.put("MDDisplayQty", String.valueOf(orderIDEntry.mDDisplayQty()));
+                        orderIDEntryMap.put("ReferenceID", String.valueOf(orderIDEntry.referenceID()));
+                        orderIDEntryMap.put("OrderUpdateAction", String.valueOf(orderIDEntry.orderUpdateAction()));
+                        orderIDEntries.add(orderIDEntryMap);
                     }
 
                     for (int i = 0; i < mdEntries.size(); i++) {
@@ -135,16 +138,20 @@ public class IncrementalParser {
                                 = orderIDEntries
                                     .stream()
                                     .filter(entry -> Integer.parseInt(entry.get("ReferenceID")) == finalI + 1)
-                                    .toList();
+                                    .collect(Collectors.toList());
                         if (subList.size() == 0) {
                             Map<String, String> row = new HashMap<>(packetFields);
                             row.putAll(headerFields);
                             row.putAll(messageFixedFields);
                             row.putAll(mdEntries.get(i));
-                            row.putAll(Map.of("OrderID", "", "MDOrderPriority", "", "MDDisplayQty", "", "ReferenceID", "", "OrderUpdateAction", ""));
+                            row.put("OrderID", "");
+                            row.put("MDOrderPriority", "");
+                            row.put("MDDisplayQty", "");
+                            row.put("ReferenceID", "");
+                            row.put("OrderUpdateAction", "");
                             rowsOfMessage.add(row);
                         } else {
-                            for (var entry : subList) {
+                            for (Map<String, String> entry : subList) {
                                 Map<String, String> row = new HashMap<>(packetFields);
                                 row.putAll(headerFields);
                                 row.putAll(messageFixedFields);
@@ -154,16 +161,16 @@ public class IncrementalParser {
                             }
                         }
                     }
+                    break;
                 }
-                case MDIncrementalRefreshTradeSummary48Decoder.TEMPLATE_ID -> {
+                case MDIncrementalRefreshTradeSummary48Decoder.TEMPLATE_ID: {
                     MDIncrementalRefreshTradeSummary48Decoder decoder = new MDIncrementalRefreshTradeSummary48Decoder();
                     decoder.wrap(buffer, offset + 2 + headerDecoder.encodedLength(), headerDecoder.blockLength(), headerDecoder.version());
-                    Map<String, String> messageFixedFields = new HashMap<>(Map.of(
-                            "TransactTime", String.valueOf(decoder.transactTime()),
-                            "MatchEventIndicator", String.valueOf(decoder.matchEventIndicator())
-                    ));
+                    Map<String, String> messageFixedFields = new HashMap<>();
+                    messageFixedFields.put("TransactTime", String.valueOf(decoder.transactTime()));
+                    messageFixedFields.put("MatchEventIndicator", String.valueOf(decoder.matchEventIndicator()));
 
-                    var mdEntriesDecoder = decoder.noMDEntries();
+                    MDIncrementalRefreshTradeSummary48Decoder.NoMDEntriesDecoder mdEntriesDecoder = decoder.noMDEntries();
                     messageFixedFields.put("NoMDEntries", String.valueOf(mdEntriesDecoder.count()));
 
                     if (mdEntriesDecoder.count() == 0) {
@@ -175,54 +182,62 @@ public class IncrementalParser {
                     }
 
                     List<Map<String, String>> mdEntries = new ArrayList<>();
-                    for (var mdEntry : mdEntriesDecoder) {
-                        mdEntries.add(Map.of(
-                                "MDEntryPx", String.valueOf(mdEntry.mDEntryPx()),
-                                "MDEntrySize", String.valueOf(mdEntry.mDEntrySize()),
-                                "SecurityID", String.valueOf(mdEntry.securityID()),
-                                "RptSeq", String.valueOf(mdEntry.rptSeq()),
-                                "NumberOfOrders", String.valueOf(mdEntry.numberOfOrders()),
-                                "AggressorSide", String.valueOf(mdEntry.aggressorSide()),
-                                "MDUpdateAction", String.valueOf(mdEntry.mDUpdateAction()),
-                                "MDEntryType", String.valueOf(mdEntry.mDEntryType()),
-                                "MDTradeEntryID", String.valueOf(mdEntry.mDTradeEntryID())
-                        ));
+                    for (MDIncrementalRefreshTradeSummary48Decoder.NoMDEntriesDecoder mdEntry : mdEntriesDecoder) {
+                        Map<String, String> entryMap = new HashMap<>();
+                        entryMap.put("MDEntryPx", String.valueOf(mdEntry.mDEntryPx()));
+                        entryMap.put("MDEntrySize", String.valueOf(mdEntry.mDEntrySize()));
+                        entryMap.put("SecurityID", String.valueOf(mdEntry.securityID()));
+                        entryMap.put("RptSeq", String.valueOf(mdEntry.rptSeq()));
+                        entryMap.put("NumberOfOrders", String.valueOf(mdEntry.numberOfOrders()));
+                        entryMap.put("AggressorSide", String.valueOf(mdEntry.aggressorSide()));
+                        entryMap.put("MDUpdateAction", String.valueOf(mdEntry.mDUpdateAction()));
+                        entryMap.put("MDEntryType", String.valueOf(mdEntry.mDEntryType()));
+                        entryMap.put("MDTradeEntryID", String.valueOf(mdEntry.mDTradeEntryID()));
+                        mdEntries.add(entryMap);
                     }
 
                     List<Map<String, String>> orderIDEntries = new ArrayList<>();
-                    var orderIDEntryDecoder = decoder.noOrderIDEntries();
+                    MDIncrementalRefreshTradeSummary48Decoder.NoOrderIDEntriesDecoder orderIDEntryDecoder = decoder.noOrderIDEntries();
                     messageFixedFields.put("NoOrderIDEntries", String.valueOf(orderIDEntryDecoder.count()));
 
-                    for (var orderIDEntry : orderIDEntryDecoder) {
-                        orderIDEntries.add(Map.of(
-                                "OrderID", String.valueOf(orderIDEntry.orderID()),
-                                "LastQty", String.valueOf(orderIDEntry.lastQty())
-                        ));
+                    for (MDIncrementalRefreshTradeSummary48Decoder.NoOrderIDEntriesDecoder orderIDEntry : orderIDEntryDecoder) {
+                        Map<String, String> orderIDEntryMap = new HashMap<>();
+                        orderIDEntryMap.put("OrderID", String.valueOf(orderIDEntry.orderID()));
+                        orderIDEntryMap.put("LastQty", String.valueOf(orderIDEntry.lastQty()));
+                        orderIDEntries.add(orderIDEntryMap);
                     }
 
                     int orderIDIndex = 0;
-                    for (var mdEntry : mdEntries) {
+                    for (Map<String, String> mdEntry : mdEntries) {
                         int numberOfOrders = Integer.parseInt(mdEntry.get("NumberOfOrders"));
-                        if (numberOfOrders == 0) {
+                        if (numberOfOrders == 0 || orderIDEntries.size() == 0) {
                             Map<String, String> row = new HashMap<>(packetFields);
                             row.putAll(headerFields);
                             row.putAll(messageFixedFields);
                             row.putAll(mdEntry);
-                            row.putAll(Map.of("OrderID", "", "LastQty", ""));
+                            row.put("OrderID", "");
+                            row.put("LastQty", "");
                             rowsOfMessage.add(row);
                         } else {
-                            for (var orderIDEntry : orderIDEntries.subList(orderIDIndex, orderIDIndex += numberOfOrders)) {
-                                Map<String, String> row = new HashMap<>(packetFields);
-                                row.putAll(headerFields);
-                                row.putAll(messageFixedFields);
-                                row.putAll(mdEntry);
-                                row.putAll(orderIDEntry);
-                                rowsOfMessage.add(row);
+                            try {
+                                for (Map<String, String> orderIDEntry : orderIDEntries.subList(orderIDIndex, orderIDIndex += numberOfOrders)) {
+                                    Map<String, String> row = new HashMap<>(packetFields);
+                                    row.putAll(headerFields);
+                                    row.putAll(messageFixedFields);
+                                    row.putAll(mdEntry);
+                                    row.putAll(orderIDEntry);
+                                    rowsOfMessage.add(row);
+                                }
+                            } catch (IndexOutOfBoundsException e) {
+                                e.printStackTrace();
+                                System.out.println("packet = " + packet + ", packetSeqNum = " + packetSeqNum);
+                                System.exit(1);
                             }
                         }
                     }
+                    break;
                 }
-                default -> { break; } // throw new IllegalStateException("Unknown templateId: " + templateId);
+                default: { break; } // throw new IllegalStateException ("Unknown templateId: " + templateId);
             }
 
             offset += messageLen;
