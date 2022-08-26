@@ -9,11 +9,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="94d15467-5e27-4669-9f60-063bc98cd5d9" name="Changes" comment="change">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="94d15467-5e27-4669-9f60-063bc98cd5d9" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/CMEParser_jar/CMEParser.jar" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/quant360/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quant360/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/quant360/parser/MBOParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quant360/parser/MBOParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/MANIFEST.MF" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,7 +42,7 @@
     </option>
   </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="CurrentFile" />
+    <option name="selectedTabId" value="ProjectErrors" />
   </component>
   <component name="ProjectId" id="2DURrePXgfznGgyZPSHg3FOpiZy" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
@@ -52,25 +52,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/ytliu/Downloads/分块尝试(CME国际数据)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Artifacts&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;editor.preferences.fonts.default&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "C:/Users/ytliu/Downloads/分块尝试(CME国际数据)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Artifacts",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "editor.preferences.fonts.default"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;mariadb&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mariadb"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/main/java/com/quant360" />
@@ -176,7 +177,7 @@
       <workItem from="1661409236189" duration="2061000" />
       <workItem from="1661411418361" duration="23573000" />
       <workItem from="1661500624648" duration="6485000" />
-      <workItem from="1661516846741" duration="1317000" />
+      <workItem from="1661516846741" duration="3906000" />
     </task>
     <task id="LOCAL-00001" summary="work">
       <created>1660817180671</created>
@@ -192,7 +193,14 @@
       <option name="project" value="LOCAL" />
       <updated>1661247083525</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="change thread-unsafe SimpleDateFormat to thread-safe DateTimeFormatter">
+      <created>1661518652713</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1661518652713</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -214,7 +222,9 @@
     <MESSAGE value="work" />
     <MESSAGE value="add extra codec classes" />
     <MESSAGE value="adapt to jdk1.8" />
-    <option name="LAST_COMMIT_MESSAGE" value="adapt to jdk1.8" />
+    <MESSAGE value="change thread-unsafe SimpleDateFormat to thread-safe DateTimeFormatter" />
+    <option name="LAST_COMMIT_MESSAGE" value="change thread-unsafe SimpleDateFormat to thread-safe DateTimeFormatter" />
+    <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

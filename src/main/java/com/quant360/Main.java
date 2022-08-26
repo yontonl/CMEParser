@@ -59,9 +59,9 @@ public class Main {
         results.forEach(result::addAll);
 
         CsvMapper mapper = new CsvMapper();
-        CsvSchema schema = mapper.schemaFor(MBOParser.MBO.class).withHeader();
+        CsvSchema schema = mapper.schemaFor(MBOParser.MBO.class).withHeader().withoutQuoteChar();
         try (
-                FileOutputStream fos = new FileOutputStream("/home/ytliu/20220817.CME_GBX.NYMEX.31_130.A.04.MBO");
+                FileOutputStream fos = new FileOutputStream("/home/ytliu/20220817.CME_GBX.NYMEX.31_130.A.04.MBO")
         ) {
             mapper.writer(schema).writeValues(fos).writeAll(result);
         } catch (Exception e) {
