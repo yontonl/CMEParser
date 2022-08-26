@@ -3,16 +3,22 @@ package com.quant360.parser;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import com.quant360.sbe.codec.MDIncrementalRefreshBook46Decoder;
+import com.quant360.sbe.codec.MDIncrementalRefreshOrderBook47Decoder;
+import com.quant360.sbe.codec.MessageHeaderDecoder;
+import com.quant360.sbe.codec.PRICENULL9Decoder;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.pcap4j.core.PcapHandle;
 import org.pcap4j.core.Pcaps;
 import org.pcap4j.packet.Packet;
 
 import java.io.FileOutputStream;
-import java.util.*;
-import java.text.SimpleDateFormat;
-
-import com.quant360.sbe.codec.*;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 public class MBOParser {
     private static String nullPriceToString(PRICENULL9Decoder price) {
@@ -23,7 +29,7 @@ public class MBOParser {
     }
 
     @JsonPropertyOrder({
-            "packet", "timestamp", "sequence_number", "sending_time",
+            "timestamp", "sequence_number", "sending_time",
             "messagetype", "sbeTemplateId", "TransactTime", "MatchEventIndicator", "NoMDEntries",
             "OrderID", "MDOrderPriority", "MDEntryPx", "MDDisplayQty", "SecurityID", "MDUpdateAction", "MDEntryType"
     })
@@ -45,24 +51,6 @@ public class MBOParser {
         public String MDEntryType;
 
         public MBO() {}
-
-        public MBO(String timestamp, long sequence_number, long sending_time, String messagetype, int sbeTemplateId, long transactTime, String matchEventIndicator, int noMDEntries, long orderID, long MDOrderPriority, String MDEntryPx, int MDDisplayQty, long securityID, String MDUpdateAction, String MDEntryType) {
-            this.timestamp = timestamp;
-            this.sequence_number = sequence_number;
-            this.sending_time = sending_time;
-            this.messagetype = messagetype;
-            this.sbeTemplateId = sbeTemplateId;
-            TransactTime = transactTime;
-            MatchEventIndicator = matchEventIndicator;
-            NoMDEntries = noMDEntries;
-            OrderID = orderID;
-            this.MDOrderPriority = MDOrderPriority;
-            this.MDEntryPx = MDEntryPx;
-            this.MDDisplayQty = MDDisplayQty;
-            SecurityID = securityID;
-            this.MDUpdateAction = MDUpdateAction;
-            this.MDEntryType = MDEntryType;
-        }
 
         public MBO(MBO other) {
             this.timestamp = other.timestamp;
@@ -106,7 +94,7 @@ public class MBOParser {
         }
     }
 
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
     private final String pcapFile;
 
     public MBOParser(String pcapFile) {
@@ -138,7 +126,7 @@ public class MBOParser {
         int sequence_number = buffer.getInt(offset);
         offset += 4;
         long sending_time = buffer.getLong(offset);
-        String timestamp = sdf.format(new Date(sending_time / 1_000_000));
+        String timestamp = new Date(sending_time / 1_000_000).toInstant().atOffset(ZoneOffset.ofHours(8)).format(dtf);
         offset += 8;
 
         MBO packetFields = new MBO();
@@ -226,7 +214,7 @@ public class MBOParser {
         CsvMapper mapper = new CsvMapper();
         CsvSchema schema = mapper.schemaFor(MBO.class).withHeader();
         try (
-                FileOutputStream fos = new FileOutputStream("src/main/resources/sample-data/20220817/20220816.220000.230000.CME_GBX.NYMEX.31_130.A.03.pcap.00000.csv");
+                FileOutputStream fos = new FileOutputStream("src/main/resources/sample-data/20220817/20220816.220000.230000.CME_GBX.NYMEX.31_130.A.03.pcap.00000.csv")
                 ) {
             mapper.writer(schema).writeValues(fos).writeAll(l);
         } catch (Exception e) {

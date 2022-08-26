@@ -6,7 +6,8 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.quant360.parser.MBOParser;
 import com.quant360.util.GZipUtil;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -22,7 +23,7 @@ public class Main {
         Pattern pattern = Pattern.compile(".*31_130.*00000\\.gz");
         File path = new File(dir);
 
-        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        ExecutorService executorService = Executors.newFixedThreadPool(Integer.parseInt(args[1]));
         List<File> destFiles = new ArrayList<>();
         for (File file : path.listFiles()) {
             if (pattern.matcher(file.getName()).matches()) {
