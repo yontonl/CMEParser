@@ -19,7 +19,7 @@ public class MBOParser {
         if (price.mantissa() == PRICENULL9Decoder.mantissaNullValue()) {
             return "null";
         }
-        return price.mantissa() * Math.pow(10, price.exponent()) + "";
+        return String.format("%.1f", price.mantissa() * Math.pow(10, price.exponent()));
     }
 
     @JsonPropertyOrder({
@@ -27,8 +27,7 @@ public class MBOParser {
             "messagetype", "sbeTemplateId", "TransactTime", "MatchEventIndicator", "NoMDEntries",
             "OrderID", "MDOrderPriority", "MDEntryPx", "MDDisplayQty", "SecurityID", "MDUpdateAction", "MDEntryType"
     })
-    private static class MBO {
-        public int packet;
+    public static class MBO {
         public String timestamp;
         public long sequence_number;
         public long sending_time;
@@ -47,8 +46,7 @@ public class MBOParser {
 
         public MBO() {}
 
-        public MBO(int packet, String timestamp, long sequence_number, long sending_time, String messagetype, int sbeTemplateId, long transactTime, String matchEventIndicator, int noMDEntries, long orderID, long MDOrderPriority, String MDEntryPx, int MDDisplayQty, long securityID, String MDUpdateAction, String MDEntryType) {
-            this.packet = packet;
+        public MBO(String timestamp, long sequence_number, long sending_time, String messagetype, int sbeTemplateId, long transactTime, String matchEventIndicator, int noMDEntries, long orderID, long MDOrderPriority, String MDEntryPx, int MDDisplayQty, long securityID, String MDUpdateAction, String MDEntryType) {
             this.timestamp = timestamp;
             this.sequence_number = sequence_number;
             this.sending_time = sending_time;
@@ -67,7 +65,6 @@ public class MBOParser {
         }
 
         public MBO(MBO other) {
-            this.packet = other.packet;
             this.timestamp = other.timestamp;
             this.sequence_number = other.sequence_number;
             this.sending_time = other.sending_time;
@@ -101,7 +98,7 @@ public class MBOParser {
                     && this.NoMDEntries == mbo.NoMDEntries
                     && this.OrderID == mbo.OrderID
                     && this.MDOrderPriority == mbo.MDOrderPriority
-                    && this.MDEntryPx == mbo.MDEntryPx
+                    && Objects.equals(this.MDEntryPx, mbo.MDEntryPx)
                     && this.MDDisplayQty == mbo.MDDisplayQty
                     && this.SecurityID == mbo.SecurityID
                     && this.MDUpdateAction.equals(mbo.MDUpdateAction)
@@ -122,18 +119,18 @@ public class MBOParser {
                 PcapHandle handle = Pcaps.openOffline(pcapFile)
                 ) {
             Packet packet;
-            int packetSeqNum = 0;
             while ((packet = handle.getNextPacket()) != null) {
-                l.addAll(parsePacket(packet, ++packetSeqNum));
+                l.addAll(parsePacket(packet));
             }
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("Error parsing pcap file: " + pcapFile);
         }
 
         return l;
     }
 
-    public List<MBO> parsePacket(Packet packet, int packetSeqNum) {
+    public List<MBO> parsePacket(Packet packet) {
         List<MBO> MBOs = new ArrayList<>();
         UnsafeBuffer buffer = new UnsafeBuffer(packet.getPayload().getPayload().getPayload().getRawData());
 
@@ -145,7 +142,6 @@ public class MBOParser {
         offset += 8;
 
         MBO packetFields = new MBO();
-        packetFields.packet = packetSeqNum;
         packetFields.timestamp = timestamp;
         packetFields.sequence_number = sequence_number;
         packetFields.sending_time = sending_time;
@@ -156,22 +152,22 @@ public class MBOParser {
             MessageHeaderDecoder messageHeaderDecoder = new MessageHeaderDecoder();
             messageHeaderDecoder.wrap(buffer, offset + 2);
 
-            MBO messageFileds = new MBO(packetFields);
+            MBO messageFields = new MBO(packetFields);
             int templateId = messageHeaderDecoder.templateId();
             switch (templateId) {
                 case MDIncrementalRefreshOrderBook47Decoder.TEMPLATE_ID: {
                     MDIncrementalRefreshOrderBook47Decoder mdIncrementalRefreshOrderBook47Decoder = new MDIncrementalRefreshOrderBook47Decoder();
                     mdIncrementalRefreshOrderBook47Decoder.wrap(buffer, offset + 2 + messageHeaderDecoder.encodedLength(), messageHeaderDecoder.blockLength(), messageHeaderDecoder.version());
-                    messageFileds.messagetype = "MDIncrementalRefreshOrderBook";
-                    messageFileds.sbeTemplateId = templateId;
-                    messageFileds.TransactTime = mdIncrementalRefreshOrderBook47Decoder.transactTime();
-                    messageFileds.MatchEventIndicator = String.valueOf(mdIncrementalRefreshOrderBook47Decoder.matchEventIndicator());
+                    messageFields.messagetype = "MDIncrementalRefreshOrderBook";
+                    messageFields.sbeTemplateId = templateId;
+                    messageFields.TransactTime = mdIncrementalRefreshOrderBook47Decoder.transactTime();
+                    messageFields.MatchEventIndicator = String.valueOf(mdIncrementalRefreshOrderBook47Decoder.matchEventIndicator());
 
-                    MDIncrementalRefreshOrderBook47Decoder.NoMDEntriesDecoder noMDEntriesDecoder = mdIncrementalRefreshOrderBook47Decoder.noMDEntries();
-                    messageFileds.NoMDEntries = noMDEntriesDecoder.count();
+                    MDIncrementalRefreshOrderBook47Decoder.NoMDEntriesDecoder mdEntriesDecoder = mdIncrementalRefreshOrderBook47Decoder.noMDEntries();
+                    messageFields.NoMDEntries = mdEntriesDecoder.count();
 
-                    for (MDIncrementalRefreshOrderBook47Decoder.NoMDEntriesDecoder mdEntry: noMDEntriesDecoder) {
-                        MBO mdEntryFields = new MBO(messageFileds);
+                    for (MDIncrementalRefreshOrderBook47Decoder.NoMDEntriesDecoder mdEntry : mdEntriesDecoder) {
+                        MBO mdEntryFields = new MBO(messageFields);
                         mdEntryFields.OrderID = mdEntry.orderID();
                         mdEntryFields.MDOrderPriority = mdEntry.mDOrderPriority();
                         mdEntryFields.MDEntryPx = nullPriceToString(mdEntry.mDEntryPx());
@@ -180,6 +176,39 @@ public class MBOParser {
                         mdEntryFields.MDUpdateAction = String.valueOf(mdEntry.mDUpdateAction());
                         mdEntryFields.MDEntryType = String.valueOf(mdEntry.mDEntryType());
                         MBOs.add(mdEntryFields);
+                    }
+                    break;
+                }
+                case MDIncrementalRefreshBook46Decoder.TEMPLATE_ID: {
+                    MDIncrementalRefreshBook46Decoder mdIncrementalRefreshBook46Decoder = new MDIncrementalRefreshBook46Decoder();
+                    mdIncrementalRefreshBook46Decoder.wrap(buffer, offset + 2 + messageHeaderDecoder.encodedLength(), messageHeaderDecoder.blockLength(), messageHeaderDecoder.version());
+                    messageFields.messagetype = "MDIncrementalRefreshBook";
+                    messageFields.sbeTemplateId = templateId;
+                    messageFields.TransactTime = mdIncrementalRefreshBook46Decoder.transactTime();
+                    messageFields.MatchEventIndicator = String.valueOf(mdIncrementalRefreshBook46Decoder.matchEventIndicator());
+
+                    MDIncrementalRefreshBook46Decoder.NoMDEntriesDecoder mdEntriesDecoder = mdIncrementalRefreshBook46Decoder.noMDEntries();
+
+                    List<MBO> mdEntries = new ArrayList<>();
+
+                    for (MDIncrementalRefreshBook46Decoder.NoMDEntriesDecoder mdEntry : mdEntriesDecoder) {
+                        MBO mdEntryFields = new MBO(messageFields);
+                        mdEntryFields.MDEntryPx = nullPriceToString(mdEntry.mDEntryPx());
+                        mdEntryFields.SecurityID = mdEntry.securityID();
+                        mdEntryFields.MDEntryType = String.valueOf(mdEntry.mDEntryType());
+                        mdEntries.add(mdEntryFields);
+                    }
+
+                    MDIncrementalRefreshBook46Decoder.NoOrderIDEntriesDecoder orderIDEntriesDecoder = mdIncrementalRefreshBook46Decoder.noOrderIDEntries();
+                    for (MDIncrementalRefreshBook46Decoder.NoOrderIDEntriesDecoder orderIDEntry: orderIDEntriesDecoder) {
+                        int referenceID = orderIDEntry.referenceID();
+                        MBO orderIDEntryFields = new MBO(mdEntries.get(referenceID - 1));
+                        orderIDEntryFields.OrderID = orderIDEntry.orderID();
+                        orderIDEntryFields.MDOrderPriority = orderIDEntry.mDOrderPriority();
+                        orderIDEntryFields.MDDisplayQty = orderIDEntry.mDDisplayQty();
+                        orderIDEntryFields.MDUpdateAction = String.valueOf(orderIDEntry.orderUpdateAction());
+                        orderIDEntryFields.NoMDEntries = orderIDEntriesDecoder.count();
+                        MBOs.add(orderIDEntryFields);
                     }
                     break;
                 }
@@ -192,12 +221,12 @@ public class MBOParser {
     }
 
     public static void main(String[] args) {
-        MBOParser parser = new MBOParser("src/main/resources/sample-data/20220822.220000.230000.CME_GBX.NYMEX.31_130.A.03.pcap.00000");
+        MBOParser parser = new MBOParser("src/main/resources/sample-data/20220817/20220816.220000.230000.CME_GBX.NYMEX.31_130.A.03.pcap.00000");
         List<MBO> l = parser.parse();
         CsvMapper mapper = new CsvMapper();
         CsvSchema schema = mapper.schemaFor(MBO.class).withHeader();
         try (
-                FileOutputStream fos = new FileOutputStream("src/main/resources/sample-data/20220822.220000.230000.CME_GBX.NYMEX.31_130.A.03.pcap.00000.csv");
+                FileOutputStream fos = new FileOutputStream("src/main/resources/sample-data/20220817/20220816.220000.230000.CME_GBX.NYMEX.31_130.A.03.pcap.00000.csv");
                 ) {
             mapper.writer(schema).writeValues(fos).writeAll(l);
         } catch (Exception e) {
