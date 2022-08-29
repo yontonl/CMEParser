@@ -6,7 +6,8 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.quant360.parser.MBOParser;
 import com.quant360.util.GZipUtil;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -23,7 +24,7 @@ public class Main {
         Pattern pattern = Pattern.compile(".*31_130.*00000\\.gz");
         File path = new File(dir);
 
-        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        ExecutorService executorService = Executors.newFixedThreadPool(Integer.parseInt(args[1]));
         List<File> destFiles = new ArrayList<>();
         for (File file : Objects.requireNonNull(path.listFiles())) {
             if (pattern.matcher(file.getName()).matches()) {
@@ -59,10 +60,10 @@ public class Main {
         results.forEach(result::addAll);
 
         CsvMapper mapper = new CsvMapper();
-        CsvSchema schema = mapper.schemaFor(MBOParser.MBO.class).withHeader();
+        CsvSchema schema = mapper.schemaFor(MBOParser.MBO.class).withHeader().withoutQuoteChar();
         try (
-//                FileOutputStream fos = new FileOutputStream("/home/ytliu/20220817.CME_GBX.NYMEX.31_130.A.04.MBO")
                 FileOutputStream fos = new FileOutputStream(args[2])
+//                FileOutputStream fos = new FileOutputStream("/home/ytliu/20220817.CME_GBX.NYMEX.31_130.A.04.MBO")
         ) {
             mapper.writer(schema).writeValues(fos).writeAll(result);
         } catch (Exception e) {
