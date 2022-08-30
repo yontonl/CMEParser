@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns2:messageSchema xmlns:ns2="http://www.fixprotocol.org/ns/simple/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" package="mktdata" id="1" version="9" semanticVersion="FIX5SP2" description="20180308" byteOrder="littleEndian" xsi:schemaLocation="http://www.fixtradingcommunity.org/pg/file/fplpo/read/1196759/simple-binary-encoding-rc2xsd SimpleBinary-RC2.xsd">
+<ns2:messageSchema xmlns:ns2="http://www.fixprotocol.org/ns/simple/1.0"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" package="mktdata" id="1" version="9"
+                   semanticVersion="FIX5SP2" description="20180308" byteOrder="littleEndian" xsi:schemaLocation="">
     <types>
         <type name="Asset" description="Asset" length="6" primitiveType="char" semanticType="String"/>
         <type name="CFICode" length="6" primitiveType="char" semanticType="String"/>
@@ -283,7 +285,7 @@
         <field name="MaxTradeVol" id="1140" type="uInt32" description="The maximum trading volume for a security" offset="87" semanticType="Qty"/>
         <field name="MinPriceIncrement" id="969" type="PRICE" description="Minimum constant tick for the instrument, sent only if instrument is non-VTT (Variable Tick table) eligible" offset="91" semanticType="Price"/>
         <field name="DisplayFactor" id="9787" type="FLOAT" description="Contains the multiplier to convert the CME Globex display price to the conventional price" offset="99" semanticType="float"/>
-        <field name="MainFraction" id="37702" type="uInt8NULL" description="Price Denominator of com.quant360.Main Fraction" offset="107" semanticType="int"/>
+        <field name="MainFraction" id="37702" type="uInt8NULL" description="Price Denominator of com.quant360.MainBackUp Fraction" offset="107" semanticType="int"/>
         <field name="SubFraction" id="37703" type="uInt8NULL" description="Price Denominator of Sub Fraction" offset="108" semanticType="int"/>
         <field name="PriceDisplayFormat" id="9800" type="uInt8NULL" description="Number of decimals in fractional display price" offset="109" semanticType="int"/>
         <field name="UnitOfMeasure" id="996" type="UnitOfMeasure" description="Unit of measure for the products' original contract size. This will be populated for all products listed on CME Globex" offset="110" semanticType="String"/>
@@ -358,7 +360,7 @@
         <field name="HighLimitPrice" id="1149" type="PRICENULL" description="Allowable high limit price for the trading day" offset="167" semanticType="Price"/>
         <field name="LowLimitPrice" id="1148" type="PRICENULL" description="Allowable low limit price for the trading day" offset="175" semanticType="Price"/>
         <field name="MaxPriceVariation" id="1143" type="PRICENULL" description="Differential value for price banding" offset="183" semanticType="Price"/>
-        <field name="MainFraction" id="37702" type="uInt8NULL" description="Price Denominator of com.quant360.Main Fraction" offset="191" semanticType="int"/>
+        <field name="MainFraction" id="37702" type="uInt8NULL" description="Price Denominator of com.quant360.MainBackUp Fraction" offset="191" semanticType="int"/>
         <field name="SubFraction" id="37703" type="uInt8NULL" description="Price Denominator of Sub Fraction" offset="192" semanticType="int"/>
         <field name="TradingReferenceDate" id="5796" type="LocalMktDate" description="Indicates session date corresponding to the settlement price in tag 1150-TradingReferencePrice" offset="193" sinceVersion="6" semanticType="LocalMktDate"/>
         <group name="NoEvents" id="864" description="Number of repeating EventType entries" blockLength="9" dimensionType="groupSize">
@@ -535,7 +537,7 @@
         <field name="MinPriceIncrementAmount" id="1146" type="PRICENULL" description="Monetary value equivalent to the minimum price fluctuation" offset="119" semanticType="Price"/>
         <field name="DisplayFactor" id="9787" type="FLOAT" description="Contains the multiplier to convert the CME Globex display price to the conventional price" offset="127" semanticType="float"/>
         <field name="TickRule" id="6350" type="Int8NULL" description="VTT code referencing variable tick table " offset="135" semanticType="int"/>
-        <field name="MainFraction" id="37702" type="uInt8NULL" description="Price Denominator of com.quant360.Main Fraction" offset="136" semanticType="int"/>
+        <field name="MainFraction" id="37702" type="uInt8NULL" description="Price Denominator of com.quant360.MainBackUp Fraction" offset="136" semanticType="int"/>
         <field name="SubFraction" id="37703" type="uInt8NULL" description="Price Denominator of Sub Fraction" offset="137" semanticType="int"/>
         <field name="PriceDisplayFormat" id="9800" type="uInt8NULL" description="Number of decimals in fractional display price" offset="138" semanticType="int"/>
         <field name="UnitOfMeasure" id="996" type="UnitOfMeasure" description="Unit of measure for the products' original contract size. This will be populated for all products listed on CME Globex" offset="139" semanticType="String"/>
@@ -778,7 +780,7 @@
         <field name="MaxTradeVol" id="1140" type="uInt32" description="The maximum trading volume for a security" offset="87" semanticType="Qty"/>
         <field name="MinPriceIncrement" id="969" type="PRICE9" description="Minimum constant tick for the instrument, sent only if instrument is non-VTT (Variable Tick table) eligible" offset="91" semanticType="Price"/>
         <field name="DisplayFactor" id="9787" type="Decimal9" description="Contains the multiplier to convert the CME Globex display price to the conventional price" offset="99" semanticType="float"/>
-        <field name="MainFraction" id="37702" type="uInt8NULL" description="Price Denominator of com.quant360.Main Fraction" offset="107" semanticType="int"/>
+        <field name="MainFraction" id="37702" type="uInt8NULL" description="Price Denominator of com.quant360.MainBackUp Fraction" offset="107" semanticType="int"/>
         <field name="SubFraction" id="37703" type="uInt8NULL" description="Price Denominator of Sub Fraction" offset="108" semanticType="int"/>
         <field name="PriceDisplayFormat" id="9800" type="uInt8NULL" description="Number of decimals in fractional display price" offset="109" semanticType="int"/>
         <field name="UnitOfMeasure" id="996" type="UnitOfMeasure" description="Unit of measure for the products' original contract size. This will be populated for all products listed on CME Globex" offset="110" semanticType="String"/>
@@ -847,7 +849,7 @@
         <field name="MinPriceIncrementAmount" id="1146" type="PRICENULL9" description="Monetary value equivalent to the minimum price fluctuation" offset="119" semanticType="Price"/>
         <field name="DisplayFactor" id="9787" type="Decimal9" description="Contains the multiplier to convert the CME Globex display price to the conventional price" offset="127" semanticType="float"/>
         <field name="TickRule" id="6350" type="Int8NULL" description="VTT code referencing variable tick table " offset="135" semanticType="int"/>
-        <field name="MainFraction" id="37702" type="uInt8NULL" description="Price Denominator of com.quant360.Main Fraction" offset="136" semanticType="int"/>
+        <field name="MainFraction" id="37702" type="uInt8NULL" description="Price Denominator of com.quant360.MainBackUp Fraction" offset="136" semanticType="int"/>
         <field name="SubFraction" id="37703" type="uInt8NULL" description="Price Denominator of Sub Fraction" offset="137" semanticType="int"/>
         <field name="PriceDisplayFormat" id="9800" type="uInt8NULL" description="Number of decimals in fractional display price" offset="138" semanticType="int"/>
         <field name="UnitOfMeasure" id="996" type="UnitOfMeasure" description="Unit of measure for the products' original contract size. This will be populated for all products listed on CME Globex" offset="139" semanticType="String"/>
@@ -924,7 +926,7 @@
         <field name="HighLimitPrice" id="1149" type="PRICENULL9" description="Allowable high limit price for the trading day" offset="167" semanticType="Price"/>
         <field name="LowLimitPrice" id="1148" type="PRICENULL9" description="Allowable low limit price for the trading day" offset="175" semanticType="Price"/>
         <field name="MaxPriceVariation" id="1143" type="PRICENULL9" description="Differential value for price banding" offset="183" semanticType="Price"/>
-        <field name="MainFraction" id="37702" type="uInt8NULL" description="Price Denominator of com.quant360.Main Fraction" offset="191" semanticType="int"/>
+        <field name="MainFraction" id="37702" type="uInt8NULL" description="Price Denominator of com.quant360.MainBackUp Fraction" offset="191" semanticType="int"/>
         <field name="SubFraction" id="37703" type="uInt8NULL" description="Price Denominator of Sub Fraction" offset="192" semanticType="int"/>
         <field name="TradingReferenceDate" id="5796" type="LocalMktDate" description="Indicates session date corresponding to the settlement price in tag 1150-TradingReferencePrice" offset="193" semanticType="LocalMktDate"/>
         <group name="NoEvents" id="864" description="Number of repeating EventType entries" blockLength="9" dimensionType="groupSize">

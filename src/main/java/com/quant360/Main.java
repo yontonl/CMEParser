@@ -1,14 +1,18 @@
 package com.quant360;
 
-
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.quant360.parser.MBOParser;
+import com.quant360.parser.Message;
+import com.quant360.parser.PacketParser;
+import com.quant360.parser.SnapshotParser;
 import com.quant360.util.GZipUtil;
+import org.apache.commons.cli.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -18,25 +22,62 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Main {
-    public static void main(String[] args) {
-        String dir = args[0];
+    private static final String PROGRAM_NAME = "CMEParser";
 
-        Pattern pattern = Pattern.compile(".*31_130.*00000\\.gz");
-        File path = new File(dir);
+    public static void main(String[] args) throws Exception {
+        Options options = new Options();
+        options.addOption("t", "type", true, "parser type");
+        options.addOption("o", "out", true, "output file name");
+        options.addOption("n", "thread", true, "number of threads used to parse pcap files");
+        options.addOption("k", "keep", false, "keep unzipped file");
+        options.addOption("h", "help", false, "help");
 
-        ExecutorService executorService = Executors.newFixedThreadPool(Integer.parseInt(args[1]));
-        List<File> destFiles = new ArrayList<>();
-        for (File file : Objects.requireNonNull(path.listFiles())) {
-            if (pattern.matcher(file.getName()).matches()) {
-                destFiles.add(GZipUtil.gunzip(file));
-            }
+        CommandLineParser commandLineParser = new DefaultParser();
+        CommandLine commandLine = commandLineParser.parse(options, args);
+
+        if (commandLine.hasOption("h")) {
+            HelpFormatter helpFormatter = new HelpFormatter();
+            helpFormatter.printHelp(
+                    "java -jar " +
+                            PROGRAM_NAME +
+                            ".jar [OPTIONS] <pcap file>/<pcap file directory>",
+                    options);
+            return;
         }
-        List<Future<List<MBOParser.MBO>>> futures = destFiles.stream().map(file -> executorService.submit(() -> {
-            MBOParser parser = new MBOParser(file.getAbsolutePath());
+
+        ExecutorService executor = Executors.newFixedThreadPool(Integer.parseInt(commandLine.getOptionValue("n", "1")));
+
+        String type = commandLine.getOptionValue("t", "MBO");
+        Class<? extends PacketParser> parserClass;
+
+        switch (type) {
+            case "MBO": parserClass = MBOParser.class; break;
+            case "Snapshot": parserClass = SnapshotParser.class; break;
+            default: System.out.println("Unknown parser type: " + type); return;
+        }
+
+        Pattern filenamePattern = (Pattern) parserClass.getMethod("filePattern").invoke(null);
+
+        List<File> inputFiles = new ArrayList<>();
+        File inputDir = new File(commandLine.getArgs()[0]);
+        if (inputDir.isDirectory()) {
+            inputFiles.addAll(
+                    Arrays.asList(Objects.requireNonNull(
+                            inputDir.listFiles(filename -> filenamePattern.matcher(filename.getName()).matches())
+                    ))
+            );
+        } else {
+            inputFiles.add(inputDir);
+        }
+
+        List<File> unzippedFiles = inputFiles.stream().map(GZipUtil::unzip).collect(Collectors.toList());
+
+        List<Future<List<Message>>> futures = unzippedFiles.stream().map(file -> executor.submit(() -> {
+            PacketParser parser = parserClass.getConstructor(String.class).newInstance(file.getAbsolutePath());
             return parser.parse();
         })).collect(Collectors.toList());
 
-        List<List<MBOParser.MBO>> results = new ArrayList<>();
+        List<List<Message>> results = new ArrayList<>();
         futures.parallelStream().forEach(future -> {
             try {
                 results.add(future.get());
@@ -44,7 +85,7 @@ public class Main {
                 e.printStackTrace();
             }
         });
-        executorService.shutdown();
+        executor.shutdown();
 
         results.sort((o1, o2) -> {
             if (o1.size() > 0 && o2.size() > 0) {
@@ -56,26 +97,36 @@ public class Main {
             }
         });
 
-        List<MBOParser.MBO> result = new ArrayList<>();
-        results.forEach(result::addAll);
+        List<Message> sortedMessages = new ArrayList<>();
+        results.forEach(sortedMessages::addAll);
 
         CsvMapper mapper = new CsvMapper();
-        CsvSchema schema = mapper.schemaFor(MBOParser.MBO.class).withHeader().withoutQuoteChar();
+        CsvSchema schema = mapper.schemaFor(parserClass.getClasses()[0]).withHeader().withoutQuoteChar();
+
+        File output = new File(commandLine.getOptionValue("o", "output.csv"));
+        File outputFilename;
+        if (output.isDirectory()) {
+            outputFilename = new File(output, "output.csv");
+        } else {
+            outputFilename = output;
+        }
+
         try (
-                FileOutputStream fos = new FileOutputStream(args[2])
-//                FileOutputStream fos = new FileOutputStream("/home/ytliu/20220817.CME_GBX.NYMEX.31_130.A.04.MBO")
-        ) {
-            mapper.writer(schema).writeValues(fos).writeAll(result);
+                FileOutputStream fos = new FileOutputStream(outputFilename)
+                ) {
+            mapper.writer(schema).writeValues(fos).writeAll(sortedMessages);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        destFiles.forEach(file -> {
-            if (file.delete()) {
-                System.out.println("File deleted: " + file.getAbsolutePath());
-            } else {
-                System.out.println("File delete failed: " + file.getAbsolutePath());
-            }
-        });
+        if (!commandLine.hasOption("k")) {
+            unzippedFiles.forEach(file -> {
+                if (file.delete()) {
+                    System.out.println("File deleted: " + file.getAbsolutePath());
+                } else {
+                    System.out.println("File delete failed: " + file.getAbsolutePath());
+                }
+            });
+        }
     }
 }

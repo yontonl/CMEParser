@@ -6,7 +6,7 @@ import java.nio.file.Files;
 import java.util.zip.GZIPInputStream;
 
 public class GZipUtil {
-    public static File gunzip(File gzFile) {
+    public static File unzip(File gzFile) {
         File destFile = new File(gzFile.getAbsoluteFile().toString().replace(".gz", ""));
 
         try (
@@ -34,7 +34,7 @@ public class GZipUtil {
         File path = new File(dir);
         for (File file : path.listFiles()) {
             if (file.getName().endsWith(".gz")) {
-                gunzip(file);
+                unzip(file);
             }
         }
     }

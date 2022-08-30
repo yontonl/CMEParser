@@ -9,11 +9,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="94d15467-5e27-4669-9f60-063bc98cd5d9" name="Changes" comment="">
+    <list default="true" id="94d15467-5e27-4669-9f60-063bc98cd5d9" name="Changes" comment="Merge remote-tracking branch 'origin/main'&#10;&#10;# Conflicts:&#10;#&#9;.gitignore&#10;#&#9;.idea/workspace.xml&#10;#&#9;src/main/java/com/quant360/Main.java&#10;#&#9;src/main/java/com/quant360/parser/MBOParser.java">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/artifacts/CMEParser_jar/CMEParser.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/quant360/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quant360/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/MANIFEST.MF" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/quant360/Main.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/quant360/parser/IncrementalParser.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/quant360/parser/MBOParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quant360/parser/MBOParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/quant360/util/GZipUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quant360/util/GZipUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/quant360/util/MathUtil.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/schema.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/schema.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,7 +46,7 @@
     </option>
   </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="ProjectErrors" />
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectId" id="2DURrePXgfznGgyZPSHg3FOpiZy" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
@@ -52,32 +56,32 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "C:/Users/ytliu/Downloads/分块尝试(CME国际数据)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Artifacts",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "editor.preferences.fonts.default"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/ytliu/Downloads/分块尝试(CME国际数据)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Artifacts&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;editor.preferences.fonts.default&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "mariadb"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mariadb&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/main/java/com/quant360" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.Main">
+  <component name="RunManager" selected="Application.Tmp">
     <configuration name="GZipUtil" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.quant360.util.GZipUtil" />
       <module name="CMEParser" />
@@ -92,36 +96,24 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="IncrementalParser" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.quant360.parser.IncrementalParser" />
-      <module name="CMEParser" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.quant360.parser.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="MBOParser" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.quant360.parser.MBOParser" />
-      <module name="CMEParser" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.quant360.parser.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.quant360.Main" />
       <module name="CMEParser" />
-      <option name="PROGRAM_PARAMETERS" value="$USER_HOME$/data/CME/sample-data/20220817" />
+      <option name="PROGRAM_PARAMETERS" value="-h" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.quant360.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Tmp" type="Application" factoryName="Application" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.quant360.Tmp" />
+      <module name="CMEParser" />
+      <option name="PROGRAM_PARAMETERS" value="-k /home/ytliu" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="com.quant360.*" />
@@ -133,16 +125,14 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="Application.IncrementalParser" />
+      <item itemvalue="Application.Tmp" />
       <item itemvalue="Application.GZipUtil" />
-      <item itemvalue="Application.MBOParser" />
       <item itemvalue="Application.Main" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Application.Main" />
         <item itemvalue="Application.GZipUtil" />
-        <item itemvalue="Application.MBOParser" />
       </list>
     </recent_temporary>
   </component>
@@ -178,6 +168,7 @@
       <workItem from="1661411418361" duration="23573000" />
       <workItem from="1661500624648" duration="6485000" />
       <workItem from="1661516846741" duration="3906000" />
+      <workItem from="1661826238299" duration="17413000" />
     </task>
     <task id="LOCAL-00001" summary="work">
       <created>1660817180671</created>
@@ -200,7 +191,14 @@
       <option name="project" value="LOCAL" />
       <updated>1661518652713</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Merge remote-tracking branch 'origin/main'&#10;&#10;# Conflicts:&#10;#&#9;.gitignore&#10;#&#9;.idea/workspace.xml&#10;#&#9;src/main/java/com/quant360/Main.java&#10;#&#9;src/main/java/com/quant360/parser/MBOParser.java">
+      <created>1661765728391</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1661765728391</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -223,7 +221,9 @@
     <MESSAGE value="add extra codec classes" />
     <MESSAGE value="adapt to jdk1.8" />
     <MESSAGE value="change thread-unsafe SimpleDateFormat to thread-safe DateTimeFormatter" />
-    <option name="LAST_COMMIT_MESSAGE" value="change thread-unsafe SimpleDateFormat to thread-safe DateTimeFormatter" />
+    <MESSAGE value="MBOParser work" />
+    <MESSAGE value="Merge remote-tracking branch 'origin/main'&#10;&#10;# Conflicts:&#10;#&#9;.gitignore&#10;#&#9;.idea/workspace.xml&#10;#&#9;src/main/java/com/quant360/Main.java&#10;#&#9;src/main/java/com/quant360/parser/MBOParser.java" />
+    <option name="LAST_COMMIT_MESSAGE" value="Merge remote-tracking branch 'origin/main'&#10;&#10;# Conflicts:&#10;#&#9;.gitignore&#10;#&#9;.idea/workspace.xml&#10;#&#9;src/main/java/com/quant360/Main.java&#10;#&#9;src/main/java/com/quant360/parser/MBOParser.java" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
