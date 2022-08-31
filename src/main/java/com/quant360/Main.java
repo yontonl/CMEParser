@@ -56,7 +56,8 @@ public class Main {
             default: System.out.println("Unknown parser type: " + type); return;
         }
 
-        Pattern filenamePattern = (Pattern) parserClass.getMethod("filePattern").invoke(null);
+        Pattern filenamePattern = (Pattern) parserClass.getField("FILENAME_PATTERN").get(null);
+        System.out.println(filenamePattern);
 
         List<File> inputFiles = new ArrayList<>();
         File inputDir = new File(commandLine.getArgs()[0]);

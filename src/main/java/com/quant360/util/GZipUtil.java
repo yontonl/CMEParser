@@ -8,6 +8,8 @@ import java.util.zip.GZIPInputStream;
 public class GZipUtil {
     public static File unzip(File gzFile) {
         File destFile = new File(gzFile.getAbsoluteFile().toString().replace(".gz", ""));
+        if (destFile.exists())
+            return destFile;
 
         try (
                 GZIPInputStream gzIos = new GZIPInputStream(Files.newInputStream(gzFile.toPath()));

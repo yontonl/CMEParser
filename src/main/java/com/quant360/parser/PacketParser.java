@@ -15,15 +15,12 @@ import java.util.regex.Pattern;
 
 public abstract class PacketParser {
     protected final String pcapFile;
-    protected static Pattern FILENAME_PATTERN;
 
     public PacketParser(String pcapFile) {
         this.pcapFile = pcapFile;
     }
 
-    public static Pattern filePattern() {
-        return FILENAME_PATTERN;
-    }
+    public abstract Pattern getFilenamePattern();
 
     public List<Message> parse() {
         List<Message> l = new ArrayList<>();

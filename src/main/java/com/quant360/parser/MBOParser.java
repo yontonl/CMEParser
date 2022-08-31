@@ -16,7 +16,12 @@ public class MBOParser extends PacketParser {
     public MBOParser(String pcapFile) {
         super(pcapFile);
     }
-    private static final Pattern FILENAME_PATTERN = Pattern.compile(".*31_130\\.A.*");
+    public static final Pattern FILENAME_PATTERN = Pattern.compile(".*31_130\\.A.*");
+
+    @Override
+    public Pattern getFilenamePattern() {
+        return FILENAME_PATTERN;
+    }
 
     @JsonPropertyOrder({
             "timestamp", "sequence_number", "sending_time",
