@@ -57,7 +57,6 @@ public class Main {
         }
 
         Pattern filenamePattern = (Pattern) parserClass.getField("FILENAME_PATTERN").get(null);
-        System.out.println(filenamePattern);
 
         List<File> inputFiles = new ArrayList<>();
         File inputDir = new File(commandLine.getArgs()[0]);

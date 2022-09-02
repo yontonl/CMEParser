@@ -15,12 +15,7 @@ public class SnapshotParser extends PacketParser {
     public SnapshotParser(String pcapFile) {
         super(pcapFile);
     }
-    public static final Pattern FILENAME_PATTERN = Pattern.compile(".*31_130\\.A.*");
-
-    @Override
-    public Pattern getFilenamePattern() {
-        return FILENAME_PATTERN;
-    }
+    public static final Pattern FILENAME_PATTERN = Pattern.compile(".*75_18\\.A.*\\.gz");
 
     @JsonPropertyOrder({
             "timestamp", "sequence_number", "sending_time",
@@ -40,6 +35,10 @@ public class SnapshotParser extends PacketParser {
         public String MDEntryPx;
         public long MDDisplayQty;
         public String MDEntryType;
+
+        public Snapshot(Message message) {
+            super(message);
+        }
 
         public Snapshot(Snapshot other) {
             this.timestamp = other.timestamp;
@@ -85,9 +84,16 @@ public class SnapshotParser extends PacketParser {
     }
 
     @Override
-    protected List<Message> parseMessage(UnsafeBuffer buffer, int offset, MessageHeaderDecoder messageHeaderDecoder, Message messageFields, int templateId) {
+    protected List<Message> parseMessage(
+        UnsafeBuffer buffer,
+        int offset,
+        MessageHeaderDecoder messageHeaderDecoder,
+        Message messageFields,
+        int templateId
+    ) {
+        Snapshot snapshotMessageFields = new Snapshot(messageFields);
         List<Message> messages = new ArrayList<>();
-        Snapshot snapshotMessageFields = (Snapshot) messageFields;
+        
         if (templateId == SnapshotFullRefreshOrderBook53Decoder.TEMPLATE_ID) {
             SnapshotFullRefreshOrderBook53Decoder snapshotFullRefreshOrderBook53Decoder = new SnapshotFullRefreshOrderBook53Decoder();
             snapshotFullRefreshOrderBook53Decoder.wrap(buffer, offset + 2 + messageHeaderDecoder.encodedLength(), messageHeaderDecoder.blockLength(), messageHeaderDecoder.version());

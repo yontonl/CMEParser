@@ -16,12 +16,7 @@ public class MBOParser extends PacketParser {
     public MBOParser(String pcapFile) {
         super(pcapFile);
     }
-    public static final Pattern FILENAME_PATTERN = Pattern.compile(".*31_130\\.A.*");
-
-    @Override
-    public Pattern getFilenamePattern() {
-        return FILENAME_PATTERN;
-    }
+    public static final Pattern FILENAME_PATTERN = Pattern.compile(".*31_130\\.A.*\\.gz");
 
     @JsonPropertyOrder({
             "timestamp", "sequence_number", "sending_time",
@@ -40,6 +35,10 @@ public class MBOParser extends PacketParser {
         public long SecurityID;
         public String MDUpdateAction;
         public String MDEntryType;
+
+        public MBO(Message message) {
+            super(message);
+        }
 
         public MBO(MBO other) {
             this.timestamp = other.timestamp;
@@ -91,9 +90,9 @@ public class MBOParser extends PacketParser {
             Message messageFields,
             int templateId
     ) {
-        MBO mboMessageFields = (MBO) messageFields;
-
+        MBO mboMessageFields = new MBO(messageFields);
         List<Message> messages = new ArrayList<>();
+
         switch (templateId) {
             case MDIncrementalRefreshOrderBook47Decoder.TEMPLATE_ID: {
                 MDIncrementalRefreshOrderBook47Decoder mdIncrementalRefreshOrderBook47Decoder = new MDIncrementalRefreshOrderBook47Decoder();
@@ -139,16 +138,20 @@ public class MBOParser extends PacketParser {
                     mdEntries.add(mdEntryFields);
                 }
 
-                MDIncrementalRefreshBook46Decoder.NoOrderIDEntriesDecoder orderIDEntriesDecoder = mdIncrementalRefreshBook46Decoder.noOrderIDEntries();
-                for (MDIncrementalRefreshBook46Decoder.NoOrderIDEntriesDecoder orderIDEntry: orderIDEntriesDecoder) {
-                    int referenceID = orderIDEntry.referenceID();
-                    MBO orderIDEntryFields = new MBO(mdEntries.get(referenceID - 1));
-                    orderIDEntryFields.OrderID = orderIDEntry.orderID();
-                    orderIDEntryFields.MDOrderPriority = orderIDEntry.mDOrderPriority();
-                    orderIDEntryFields.MDDisplayQty = orderIDEntry.mDDisplayQty();
-                    orderIDEntryFields.MDUpdateAction = String.valueOf(orderIDEntry.orderUpdateAction());
-                    orderIDEntryFields.NoMDEntries = orderIDEntriesDecoder.count();
-                    messages.add(orderIDEntryFields);
+                try {
+                    MDIncrementalRefreshBook46Decoder.NoOrderIDEntriesDecoder orderIDEntriesDecoder = mdIncrementalRefreshBook46Decoder.noOrderIDEntries();
+                    for (MDIncrementalRefreshBook46Decoder.NoOrderIDEntriesDecoder orderIDEntry: orderIDEntriesDecoder) {
+                        int referenceID = orderIDEntry.referenceID();
+                        MBO orderIDEntryFields = new MBO(mdEntries.get(referenceID - 1));
+                        orderIDEntryFields.OrderID = orderIDEntry.orderID();
+                        orderIDEntryFields.MDOrderPriority = orderIDEntry.mDOrderPriority();
+                        orderIDEntryFields.MDDisplayQty = orderIDEntry.mDDisplayQty();
+                        orderIDEntryFields.MDUpdateAction = String.valueOf(orderIDEntry.orderUpdateAction());
+                        orderIDEntryFields.NoMDEntries = orderIDEntriesDecoder.count();
+                        messages.add(orderIDEntryFields);
+                    }
+                } catch (IndexOutOfBoundsException e) {
+                    break;
                 }
                 break;
             }

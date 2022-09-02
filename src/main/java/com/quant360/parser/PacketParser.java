@@ -11,7 +11,6 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public abstract class PacketParser {
     protected final String pcapFile;
@@ -19,8 +18,6 @@ public abstract class PacketParser {
     public PacketParser(String pcapFile) {
         this.pcapFile = pcapFile;
     }
-
-    public abstract Pattern getFilenamePattern();
 
     public List<Message> parse() {
         List<Message> l = new ArrayList<>();
